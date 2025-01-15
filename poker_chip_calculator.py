@@ -49,8 +49,8 @@ def main():
     chip_values = {
         "Black": 2,
         "Green": 1,
-        "Red": 0.2,
         "Blue": 0.5,
+        "Red": 0.2,
         "White": 0.1
     }
 
