@@ -26,11 +26,11 @@ def calculate_cash_out(chip_counts, chip_values):
 def main():
     # Chip values as constants (modify as needed)
     chip_values = {
-        "Black": 100,
-        "Green": 25,
-        "Red": 10,
-        "Blue": 5,
-        "White": 1
+        "Black": 2,
+        "Green": 1,
+        "Red": .2,
+        "Blue": .5,
+        "White": .1
     }
 
     # Sidebar navigation
@@ -61,6 +61,8 @@ def main():
                     unsafe_allow_html=True
                 )
 
+        st.markdown("**[Buy-In:](https://venmo.com/code?user_id=2485933647593472041&created=1736959326)**")
+
     elif page == "Cash Out":
         st.title("Cash-Out Calculator")
         st.write("Enter the number of chips to calculate the cash-out amount.")
@@ -76,6 +78,8 @@ def main():
             # Display total cash-out amount
             st.subheader("Cash-Out Amount")
             st.write(f"Total: ${cash_out_amount}")
+        
+        st.markdown("**[Cashout:](https://venmo.com/code?user_id=2485933647593472041&created=1736959326)**")
 
 if __name__ == "__main__":
     main()
