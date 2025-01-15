@@ -16,13 +16,17 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
     chip_count["Black"] = black_allocation // chip_values["Black"]
     remaining_amount -= black_allocation
 
-    # Distribute remaining amount proportionally to other chips
-    for color, value in sorted(chip_values.items(), key=lambda x: x[1], reverse=True):
-        if color in ["White", "Red", "Black"]:
-            continue  # Skip already allocated chips
-        count = remaining_amount // value
-        chip_count[color] = int(count)
-        remaining_amount -= count * value
+    # Distribute remaining amount proportionally to other chips, ensuring more Blues than Greens
+    while remaining_amount > 0:
+        for color, value in sorted(chip_values.items(), key=lambda x: x[1], reverse=True):
+            if color in ["White", "Red", "Black"]:
+                continue  # Skip already allocated chips
+            if color == "Blue":
+                count = min(remaining_amount // value, 2)  # Distribute more Blues
+            else:
+                count = min(remaining_amount // value, 1)
+            chip_count[color] += count
+            remaining_amount -= count * value
 
     if remaining_amount > 0:
         st.warning("The amount cannot be exactly fulfilled with the given chip values.")
