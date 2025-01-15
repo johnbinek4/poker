@@ -24,13 +24,13 @@ def calculate_cash_out(chip_counts, chip_values):
 
 # Streamlit app
 def main():
-    # Chip values as constants (modify as needed)
+    # Chip values as constants
     chip_values = {
         "Black": 2,
         "Green": 1,
-        "Red": .2,
-        "Blue": .5,
-        "White": .1
+        "Red": 0.2,
+        "Blue": 0.5,
+        "White": 0.1
     }
 
     # Sidebar navigation
@@ -41,7 +41,7 @@ def main():
         st.write("Enter the buy-in amount and calculate the required chips.")
 
         # Input buy-in amount
-        buy_in = st.number_input("Buy-In Amount:", min_value=1, value=100, key="buy_in")
+        buy_in = st.number_input("Buy-In Amount:", min_value=1, value=20, key="buy_in")
         if st.button("Calculate Buy-In"):
             chip_distribution = calculate_chips(buy_in, chip_values)
 
@@ -77,7 +77,7 @@ def main():
 
             # Display total cash-out amount
             st.subheader("Cash-Out Amount")
-            st.write(f"Total: ${cash_out_amount}")
+            st.write(f"Total: ${cash_out_amount:.2f}")
         
         st.markdown("**[Click to Cashout](https://venmo.com/code?user_id=2485933647593472041&created=1736959326)**")
 
