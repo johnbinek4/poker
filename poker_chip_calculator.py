@@ -3,17 +3,17 @@ import streamlit as st
 # Function to calculate poker chips required for a buy-in
 def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
     chip_count = {color: 0 for color in chip_values}
-    remaining_amount = amount
+    remaining_amount = int(amount)
 
     # Ensure minimum White and Red chips are allocated first
     chip_count["White"] = min_whites
     chip_count["Red"] = min_reds
-    remaining_amount -= min_whites * chip_values["White"] + min_reds * chip_values["Red"]
+    remaining_amount -= int(min_whites * chip_values["White"] + min_reds * chip_values["Red"])
 
     # Allocate Black chips with a maximum limit per player
-    max_black_value = max_blacks * chip_values["Black"]
-    black_allocation = min(max_black_value, remaining_amount // chip_values["Black"] * chip_values["Black"])
-    chip_count["Black"] = black_allocation // chip_values["Black"]
+    max_black_value = int(max_blacks * chip_values["Black"])
+    black_allocation = min(max_black_value, int(remaining_amount // chip_values["Black"] * chip_values["Black"]))
+    chip_count["Black"] = black_allocation // int(chip_values["Black"])
     remaining_amount -= black_allocation
 
     # Distribute remaining amount proportionally to other chips, ensuring more Blues than Greens
@@ -22,11 +22,11 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
             if color in ["White", "Red", "Black"]:
                 continue  # Skip already allocated chips
             if color == "Blue":
-                count = min(remaining_amount // value, 2)  # Distribute more Blues
+                count = min(remaining_amount // int(value), 2)  # Distribute more Blues
             else:
-                count = min(remaining_amount // value, 1)
+                count = min(remaining_amount // int(value), 1)
             chip_count[color] += count
-            remaining_amount -= count * value
+            remaining_amount -= count * int(value)
 
     if remaining_amount > 0:
         st.warning("The amount cannot be exactly fulfilled with the given chip values.")
@@ -37,7 +37,7 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
 def calculate_cash_out(chip_counts, chip_values):
     total_amount = 0
     for color, count in chip_counts.items():
-        total_amount += count * chip_values[color]
+        total_amount += count * int(chip_values[color])
     return total_amount
 
 # Streamlit app
@@ -77,7 +77,7 @@ def main():
                         <div style="width: 30px; height: 30px; border-radius: 50%; background-color: {color.lower()}; margin-right: 10px;"></div>
                         <span style="flex: 1;">{color} chip ({chip_values[color]})</span>
                         <div style="padding: 5px; border: 1px solid #ccc; border-radius: 5px; width: 50px; text-align: center;">
-                            {count}
+                            {int(count)}
                         </div>
                     </div>
                     """,
@@ -93,7 +93,7 @@ def main():
         # Input chip counts
         chip_counts = {}
         for color in chip_values:
-            chip_counts[color] = st.number_input(f"Number of {color} chips:", min_value=0, value=0, key=f"chip_{color}")
+            chip_counts[color] = int(st.number_input(f"Number of {color} chips:", min_value=0, value=0, key=f"chip_{color}"))
 
         if st.button("Calculate Cash Out"):
             cash_out_amount = calculate_cash_out(chip_counts, chip_values)
