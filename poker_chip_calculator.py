@@ -1,11 +1,19 @@
 import streamlit as st
 
 # Function to calculate poker chips required for a buy-in
-def calculate_chips(amount, chip_values):
-    chip_count = {}
+def calculate_chips(amount, chip_values, min_whites, min_reds):
+    chip_count = {color: 0 for color in chip_values}
     remaining_amount = amount
 
+    # Ensure minimum White and Red chips are allocated first
+    chip_count["White"] = min_whites
+    chip_count["Red"] = min_reds
+    remaining_amount -= min_whites * chip_values["White"] + min_reds * chip_values["Red"]
+
+    # Distribute remaining amount proportionally to other chips
     for color, value in sorted(chip_values.items(), key=lambda x: x[1], reverse=True):
+        if color in ["White", "Red"]:
+            continue  # Skip already allocated chips
         count = remaining_amount // value
         chip_count[color] = int(count)
         remaining_amount -= count * value
@@ -33,6 +41,10 @@ def main():
         "White": 0.1
     }
 
+    # Minimum number of White and Red chips per buy-in
+    min_whites = 15
+    min_reds = 15
+
     # Sidebar navigation
     page = st.sidebar.radio("Navigate", ["Buy-In", "Cash Out"])
 
@@ -43,7 +55,7 @@ def main():
         # Input buy-in amount
         buy_in = st.number_input("Buy-In Amount:", min_value=1, value=20, key="buy_in")
         if st.button("Calculate Buy-In"):
-            chip_distribution = calculate_chips(buy_in, chip_values)
+            chip_distribution = calculate_chips(buy_in, chip_values, min_whites, min_reds)
 
             # Display chip results
             st.subheader("Chip Distribution")
