@@ -12,8 +12,8 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
 
     # Allocate Black chips with a maximum limit per player
     max_black_value = int(max_blacks * chip_values["Black"])
-    black_allocation = min(max_black_value, int(remaining_amount // chip_values["Black"] * chip_values["Black"]))
-    chip_count["Black"] = black_allocation // int(chip_values["Black"])
+    black_allocation = min(max_black_value, remaining_amount // chip_values["Black"] * chip_values["Black"])
+    chip_count["Black"] = black_allocation // chip_values["Black"]
     remaining_amount -= black_allocation
 
     # Distribute remaining amount proportionally to other chips, ensuring more Blues than Greens
@@ -21,12 +21,15 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
         for color, value in sorted(chip_values.items(), key=lambda x: x[1], reverse=True):
             if color in ["White", "Red", "Black"]:
                 continue  # Skip already allocated chips
+            if value == 0:  # Prevent division by zero
+                continue
             if color == "Blue":
-                count = min(remaining_amount // int(value), 2)  # Distribute more Blues
+                count = min(remaining_amount // value, 2)  # Distribute more Blues
             else:
-                count = min(remaining_amount // int(value), 1)
-            chip_count[color] += count
-            remaining_amount -= count * int(value)
+                count = min(remaining_amount // value, 1)
+            if count > 0:
+                chip_count[color] += count
+                remaining_amount -= count * value
 
     if remaining_amount > 0:
         st.warning("The amount cannot be exactly fulfilled with the given chip values.")
@@ -37,7 +40,7 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
 def calculate_cash_out(chip_counts, chip_values):
     total_amount = 0
     for color, count in chip_counts.items():
-        total_amount += count * int(chip_values[color])
+        total_amount += count * chip_values[color]
     return total_amount
 
 # Streamlit app
