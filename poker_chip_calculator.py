@@ -61,7 +61,7 @@ def main():
                     unsafe_allow_html=True
                 )
 
-        st.markdown("**[Buy-In:](https://venmo.com/code?user_id=2485933647593472041&created=1736959326)**")
+        st.markdown("**[Click to Buy-In](https://venmo.com/code?user_id=2485933647593472041&created=1736959326)**")
 
     elif page == "Cash Out":
         st.title("Cash-Out Calculator")
@@ -79,7 +79,7 @@ def main():
             st.subheader("Cash-Out Amount")
             st.write(f"Total: ${cash_out_amount}")
         
-        st.markdown("**[Cashout:](https://venmo.com/code?user_id=2485933647593472041&created=1736959326)**")
+        st.markdown("**[Click to Cashout](https://venmo.com/code?user_id=2485933647593472041&created=1736959326)**")
 
 if __name__ == "__main__":
     main()
