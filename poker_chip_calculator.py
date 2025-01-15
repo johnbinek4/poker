@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Function to calculate poker chips required for a buy-in
-def calculate_chips(amount, chip_values, min_whites, min_reds):
+def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
     chip_count = {color: 0 for color in chip_values}
     remaining_amount = amount
 
@@ -10,9 +10,15 @@ def calculate_chips(amount, chip_values, min_whites, min_reds):
     chip_count["Red"] = min_reds
     remaining_amount -= min_whites * chip_values["White"] + min_reds * chip_values["Red"]
 
+    # Allocate Black chips with a maximum limit per player
+    max_black_value = max_blacks * chip_values["Black"]
+    black_allocation = min(max_black_value, remaining_amount // chip_values["Black"] * chip_values["Black"])
+    chip_count["Black"] = black_allocation // chip_values["Black"]
+    remaining_amount -= black_allocation
+
     # Distribute remaining amount proportionally to other chips
     for color, value in sorted(chip_values.items(), key=lambda x: x[1], reverse=True):
-        if color in ["White", "Red"]:
+        if color in ["White", "Red", "Black"]:
             continue  # Skip already allocated chips
         count = remaining_amount // value
         chip_count[color] = int(count)
@@ -44,6 +50,7 @@ def main():
     # Minimum number of White and Red chips per buy-in
     min_whites = 15
     min_reds = 15
+    max_blacks = 2  # Maximum number of Black chips per player
 
     # Sidebar navigation
     page = st.sidebar.radio("Navigate", ["Buy-In", "Cash Out"])
@@ -55,7 +62,7 @@ def main():
         # Input buy-in amount
         buy_in = st.number_input("Buy-In Amount:", min_value=1, value=20, key="buy_in")
         if st.button("Calculate Buy-In"):
-            chip_distribution = calculate_chips(buy_in, chip_values, min_whites, min_reds)
+            chip_distribution = calculate_chips(buy_in, chip_values, min_whites, min_reds, max_blacks)
 
             # Display chip results
             st.subheader("Chip Distribution")
@@ -90,7 +97,7 @@ def main():
             # Display total cash-out amount
             st.subheader("Cash-Out Amount")
             st.write(f"Total: ${cash_out_amount:.2f}")
-        
+
         st.markdown("**[Click to Cashout](https://venmo.com/code?user_id=2485933647593472041&created=1736959326)**")
 
 if __name__ == "__main__":
