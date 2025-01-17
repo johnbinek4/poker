@@ -3,18 +3,21 @@ import streamlit as st
 # Function to calculate poker chips required for a buy-in
 def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
     chip_count = {color: 0 for color in chip_values}
-    remaining_amount = int(amount)
+    remaining_amount = int(amount * 10)  # Scale to avoid float issues
+
+    # Scale chip values to integers
+    scaled_chip_values = {color: int(value * 10) for color, value in chip_values.items()}
 
     # Fix White, Red, and Black chips
     chip_count["White"] = min_whites
     chip_count["Red"] = min_reds
     chip_count["Black"] = max_blacks
-    remaining_amount -= int(min_whites * chip_values["White"] + min_reds * chip_values["Red"] + max_blacks * chip_values["Black"])
+    remaining_amount -= int(min_whites * scaled_chip_values["White"] + min_reds * scaled_chip_values["Red"] + max_blacks * scaled_chip_values["Black"])
 
     # Iterate over combinations of Blue and Green to satisfy constraints
-    for blue_count in range(remaining_amount // chip_values["Blue"] + 1):
-        for green_count in range(remaining_amount // chip_values["Green"] + 1):
-            if blue_count * chip_values["Blue"] + green_count * chip_values["Green"] == remaining_amount and blue_count > green_count:
+    for blue_count in range(remaining_amount // scaled_chip_values["Blue"] + 1):
+        for green_count in range(remaining_amount // scaled_chip_values["Green"] + 1):
+            if blue_count * scaled_chip_values["Blue"] + green_count * scaled_chip_values["Green"] == remaining_amount and blue_count > green_count:
                 chip_count["Blue"] = blue_count
                 chip_count["Green"] = green_count
                 remaining_amount = 0
@@ -26,6 +29,8 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
     if remaining_amount > 0:
         st.error("The chip distribution constraints could not be satisfied. Please adjust the buy-in amount or constraints.")
 
+    # Scale back chip counts to original proportions
+    chip_count = {color: int(count) for color, count in chip_count.items()}
     return chip_count
 
 # Function to calculate the cash-out amount from chip counts
