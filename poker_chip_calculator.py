@@ -16,31 +16,41 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
     chip_count["Black"] = black_allocation // chip_values["Black"]
     remaining_amount -= black_allocation
 
-    # Distribute remaining amount proportionally while respecting constraints
+    # Adjust distribution iteratively to meet constraints
     while remaining_amount > 0:
         for color, value in sorted(chip_values.items(), key=lambda x: x[1], reverse=True):
             if color == "White":
-                count = min(remaining_amount // value, 2)  # Ensure White and Red are equal
+                if chip_count["White"] > chip_count["Red"]:  # Match White and Red
+                    continue
+                count = remaining_amount // value
                 chip_count[color] += count
-                chip_count["Red"] += count  # Match Red to White
-                remaining_amount -= count * value * 2
+                remaining_amount -= count * value
+            elif color == "Red":
+                if chip_count["Red"] >= chip_count["Blue"]:
+                    continue
+                count = remaining_amount // value
+                chip_count[color] += count
+                remaining_amount -= count * value
             elif color == "Blue":
-                count = min(remaining_amount // value, 1)  # Ensure Blue > Green
+                if chip_count["Blue"] >= chip_count["Green"]:
+                    continue
+                count = remaining_amount // value
                 chip_count[color] += count
                 remaining_amount -= count * value
             elif color == "Green":
-                count = min(remaining_amount // value, 1)  # Ensure Green > Black
+                if chip_count["Green"] >= chip_count["Black"]:
+                    continue
+                count = remaining_amount // value
                 chip_count[color] += count
                 remaining_amount -= count * value
             elif color == "Black":
-                count = min(remaining_amount // value, 1)  # Black is the smallest
+                count = min(remaining_amount // value, max_blacks - chip_count["Black"])
                 chip_count[color] += count
                 remaining_amount -= count * value
 
-    # Final check to ensure the calculated chip values match the total amount
-    total_calculated = sum(chip_count[color] * chip_values[color] for color in chip_count)
-    if total_calculated != amount:
-        st.error("The chip distribution does not match the specified buy-in amount. Adjust constraints.")
+    # Final check to ensure constraints are met
+    if not (chip_count["White"] >= chip_count["Red"] >= chip_count["Blue"] >= chip_count["Green"] >= chip_count["Black"]):
+        st.error("The chip distribution constraints could not be satisfied. Please adjust the buy-in amount or constraints.")
 
     return chip_count
 
