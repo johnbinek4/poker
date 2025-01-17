@@ -5,51 +5,25 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
     chip_count = {color: 0 for color in chip_values}
     remaining_amount = int(amount)
 
-    # Ensure minimum White and Red chips are allocated first
+    # Fix White, Red, and Black chips
     chip_count["White"] = min_whites
     chip_count["Red"] = min_reds
-    remaining_amount -= int(min_whites * chip_values["White"] + min_reds * chip_values["Red"])
+    chip_count["Black"] = max_blacks
+    remaining_amount -= int(min_whites * chip_values["White"] + min_reds * chip_values["Red"] + max_blacks * chip_values["Black"])
 
-    # Allocate Black chips with a maximum limit per player
-    max_black_value = int(max_blacks * chip_values["Black"])
-    black_allocation = min(max_black_value, remaining_amount // chip_values["Black"] * chip_values["Black"])
-    chip_count["Black"] = black_allocation // chip_values["Black"]
-    remaining_amount -= black_allocation
+    # Iterate over combinations of Blue and Green to satisfy constraints
+    for blue_count in range(remaining_amount // chip_values["Blue"] + 1):
+        for green_count in range(remaining_amount // chip_values["Green"] + 1):
+            if blue_count * chip_values["Blue"] + green_count * chip_values["Green"] == remaining_amount and blue_count > green_count:
+                chip_count["Blue"] = blue_count
+                chip_count["Green"] = green_count
+                remaining_amount = 0
+                break
+        if remaining_amount == 0:
+            break
 
-    # Adjust distribution iteratively to meet constraints
-    while remaining_amount > 0:
-        for color, value in sorted(chip_values.items(), key=lambda x: x[1], reverse=True):
-            if color == "White":
-                if chip_count["White"] > chip_count["Red"]:  # Match White and Red
-                    continue
-                count = remaining_amount // value
-                chip_count[color] += count
-                remaining_amount -= count * value
-            elif color == "Red":
-                if chip_count["Red"] >= chip_count["Blue"]:
-                    continue
-                count = remaining_amount // value
-                chip_count[color] += count
-                remaining_amount -= count * value
-            elif color == "Blue":
-                if chip_count["Blue"] >= chip_count["Green"]:
-                    continue
-                count = remaining_amount // value
-                chip_count[color] += count
-                remaining_amount -= count * value
-            elif color == "Green":
-                if chip_count["Green"] >= chip_count["Black"]:
-                    continue
-                count = remaining_amount // value
-                chip_count[color] += count
-                remaining_amount -= count * value
-            elif color == "Black":
-                count = min(remaining_amount // value, max_blacks - chip_count["Black"])
-                chip_count[color] += count
-                remaining_amount -= count * value
-
-    # Final check to ensure constraints are met
-    if not (chip_count["White"] >= chip_count["Red"] >= chip_count["Blue"] >= chip_count["Green"] >= chip_count["Black"]):
+    # Final check
+    if remaining_amount > 0:
         st.error("The chip distribution constraints could not be satisfied. Please adjust the buy-in amount or constraints.")
 
     return chip_count
@@ -72,10 +46,10 @@ def main():
         "White": 0.1
     }
 
-    # Minimum number of White and Red chips per buy-in
+    # Fixed number of White, Red, and Black chips per buy-in
     min_whites = 15
     min_reds = 15
-    max_blacks = 3  # Maximum number of Black chips per player
+    max_blacks = 3
 
     # Sidebar navigation
     page = st.sidebar.radio("Navigate", ["Buy-In", "Cash Out"])
