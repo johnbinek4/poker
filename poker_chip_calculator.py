@@ -65,7 +65,7 @@ def main():
     # Minimum number of White and Red chips per buy-in
     min_whites = 15
     min_reds = 15
-    max_blacks = 2  # Maximum number of Black chips per player
+    max_blacks = 3  # Maximum number of Black chips per player
 
     # Sidebar navigation
     page = st.sidebar.radio("Navigate", ["Buy-In", "Cash Out"])
