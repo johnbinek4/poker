@@ -16,23 +16,31 @@ def calculate_chips(amount, chip_values, min_whites, min_reds, max_blacks):
     chip_count["Black"] = black_allocation // chip_values["Black"]
     remaining_amount -= black_allocation
 
-    # Distribute remaining amount proportionally to other chips, ensuring more Blues than Greens
+    # Distribute remaining amount proportionally while respecting constraints
     while remaining_amount > 0:
         for color, value in sorted(chip_values.items(), key=lambda x: x[1], reverse=True):
-            if color in ["White", "Red", "Black"]:
-                continue  # Skip already allocated chips
-            if value == 0:  # Prevent division by zero
-                continue
-            if color == "Blue":
-                count = min(remaining_amount // value, 2)  # Distribute more Blues
-            else:
-                count = min(remaining_amount // value, 1)
-            if count > 0:
+            if color == "White":
+                count = min(remaining_amount // value, 2)  # Ensure White and Red are equal
+                chip_count[color] += count
+                chip_count["Red"] += count  # Match Red to White
+                remaining_amount -= count * value * 2
+            elif color == "Blue":
+                count = min(remaining_amount // value, 1)  # Ensure Blue > Green
+                chip_count[color] += count
+                remaining_amount -= count * value
+            elif color == "Green":
+                count = min(remaining_amount // value, 1)  # Ensure Green > Black
+                chip_count[color] += count
+                remaining_amount -= count * value
+            elif color == "Black":
+                count = min(remaining_amount // value, 1)  # Black is the smallest
                 chip_count[color] += count
                 remaining_amount -= count * value
 
-    if remaining_amount > 0:
-        st.warning("The amount cannot be exactly fulfilled with the given chip values.")
+    # Final check to ensure the calculated chip values match the total amount
+    total_calculated = sum(chip_count[color] * chip_values[color] for color in chip_count)
+    if total_calculated != amount:
+        st.error("The chip distribution does not match the specified buy-in amount. Adjust constraints.")
 
     return chip_count
 
